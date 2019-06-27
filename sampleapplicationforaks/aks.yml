@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sampleapplicationforaks-master
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sampleapplicationforaks
+  template:
+    metadata:
+      labels:
+        app: sampleapplicationforaks
+    spec:
+      containers:
+      - name: sampleapplicationforaks
+        image: simpleacr.azurecr.io/reddivaripriyanka/aksapplication:#{Build.BuildId}#
+        ports:
+        - containerPort: 80
+        env:
+          - name: PODNAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+      imagePullSecrets:
+      - name: demoaks
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sampleapplicationforaks
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+  selector:
+    app: sampleapplicationforaks
